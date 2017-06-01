@@ -1,6 +1,53 @@
-![](https://cdn.auth0.com/resources/oss-source-large-2x.png)
+# auth0.js with Google login support on Cordova platform
 
-# auth0.js
+This fork reimplements login flow on Cordova devices through `safariviewcontroller` and `customurlscheme` plugins. 
+
+It opens [Safari View Controller](https://www.youtube.com/watch?v=lY2_QwZPZZM) / [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) automatically as an activity within your application window and returns back to your app activity though custom url scheme when login flow ends. [Google login works](https://auth0.com/blog/google-blocks-oauth-requests-from-embedded-browsers/) in this case and what what is good for all social login providers - session data that user has in their Safari/Chrome browsers are used so users don't need to log in again in your app.
+
+## Setup
+Additional steps to your current Auth0.js setup:
+
+Change auth0 dependency in package.js
+```
+"dependencies": {
+  "auth0-js": "git+https://git@github.com/saphocom/auth0.js.git#v8.6.0-patched"`
+  ...
+```
+
+Install cordova plugins
+```
+cordova plugin add cordova-plugin-safariviewcontroller
+cordova plugin add cordova-plugin-customurlscheme --variable URL_SCHEME={yourawesomeapp}
+```
+
+Chage redirectUrl when in Cordova mode:
+```
+var lock = new Auth0Lock(clientId, domain, {
+            auth: {
+                redirectUrl: window.cordova ? 'yourawesomeapp://auth0/callback' : yourStandardRedirectUrl,
+                sso: false, //@see https://auth0.com/docs/quickstart/native/cordova
+            },
+        });
+```
+
+Setup url handler:
+```
+import Auth0CordovaPlugin from 'auth0-js/plugins/cordova';
+
+window.handleOpenURL = function(url) {
+  if (url.includes('yourawesomeapp://auth0/callback')) {
+    //Finish Auth0 session
+    var originalUrl = Auth0CordovaPlugin.finishAuth(url);
+
+    //Login
+    YourApi.call('api/login/auth0/exchange-code-to-access_token', YourUrlUtils.extractCode(originalUrl));
+  }
+};
+```
+
+Profit!
+
+![](https://cdn.auth0.com/resources/oss-source-large-2x.png)
 
 [![Build Status][circleci-image]][circleci-url]
 [![NPM version][npm-image]][npm-url]
