@@ -47,7 +47,7 @@ PluginHandler.prototype.getPopupHandler = function () {
 PluginHandler.prototype._canUseBrowserView = function(redirectUri) {
     return 'object' === typeof window && window.SafariViewController
         //&& SafariViewController.isAvailable() //can't use async isAvailable() here. Make Plugin flow async?
-        && !/^http(s)?:\/\//.test(redirectUri);
+        && (!/^http(s)?:\/\//.test(redirectUri) || /=(?!http)[a-z]+%3A%2F%2F/.test(redirectUri));
 };
 
 module.exports = PluginHandler;
