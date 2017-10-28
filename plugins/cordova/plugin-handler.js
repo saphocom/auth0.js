@@ -19,7 +19,7 @@ PluginHandler.prototype.processParams = function (params) {
     this.params = params;
 
     if (this._canUseBrowserView(params.redirectUri)) {
-        params.redirectUri = urlHelper.schemeToClearTopIntent(params.redirectUri);
+        //params.redirectUri = urlHelper.schemeToClearTopIntent(params.redirectUri);
     } else {
         console.log('Auth0 needs safariviewcontroller and customurlscheme plugins to work correctly in Cordova environment. Falling back to legacy mode..');
         params.redirectUri = urljoin('https://' + params.domain, 'mobile');
